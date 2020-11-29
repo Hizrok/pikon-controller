@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
+import './css/style.css'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
 import Menu from './Components/Menu'
 import Home from './Components/Home'
