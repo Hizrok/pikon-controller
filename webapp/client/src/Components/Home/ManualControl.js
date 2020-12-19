@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import { Button } from 'react-bootstrap'
-import Slider from './ManualControl/Slider'
+import Slider from '../General/Slider'
 
 function ManualControl() {
   const [state, setState] = useState({
