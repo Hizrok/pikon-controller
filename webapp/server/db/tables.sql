@@ -1,0 +1,8 @@
+CREATE TABLE tasks (
+    id BIGSERIAL NOT NULL,
+    task VARCHAR(50) NOT NULL,
+    task_data VARCHAR(150) NOT NULL,
+    task_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    status VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id)
+);
