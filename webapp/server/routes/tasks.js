@@ -6,7 +6,7 @@ const pool = require('../db')
 router.get('/', (req, res, next) => {
   // query for all tasks or return an error
   pool
-    .query("SELECT * FROM tasks WHERE status='IN_PROGRESS';")
+    .query("SELECT * FROM tasks WHERE status='IN_PROGRESS' ORDER BY task_date;")
     .then(response => {
       res.status(200).json({
         message: 'Tasks returned from the database',
@@ -108,12 +108,12 @@ router.get('/:taskId', (req, res, next) => {
 router.put('/:taskId', (req, res, next) => {
   // create updatedTask for debug, query UPDATE SET command, return error if it fails
   const id = req.params.taskId
-  const {task, taskData, taskDate, status} = req.body
-  const updatedTask = {id, task, taskData, taskDate, status}
+  const {task, taskData, taskDate} = req.body
+  const updatedTask = {id, task, taskData, taskDate}
   pool
     .query(
-      'UPDATE tasks SET task=$1, task_data=$2, task_date=$3, status=$4 WHERE id=$5;',
-      [task, taskData, taskDate, status, id]
+      'UPDATE tasks SET task=$1, task_data=$2, task_date=$3 WHERE id=$4;',
+      [task, taskData, taskDate, id]
     )
     .then(response => {
       res.status(200).json({

@@ -14,6 +14,7 @@ function App() {
         <Route path='/' exact component={Home} />
         <Route path='/photos' exact component={Photos} />
         <Route path='/schedule' exact component={Schedule} />
+        <Route path='/schedule/:id' exact component={Schedule} />
       </Switch>
     </Router>
   );

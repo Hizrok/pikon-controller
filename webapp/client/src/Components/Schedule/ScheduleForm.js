@@ -1,13 +1,14 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {useHistory} from 'react-router-dom'
 import RotateForm from './ScheduleForm/RotateForm'
 import TaskForm from './ScheduleForm/TaskForm'
 import TimeForm from './ScheduleForm/TimeForm'
 import ConfirmForm from './ScheduleForm/ConfirmForm'
 
-function ScheduleForm() {
+function ScheduleForm(props) {
   // state
   const [state, setState] = useState({
+    action: 'post',
     step: 1,
     task: 'rotate',
     xRot: 0,
@@ -18,6 +19,28 @@ function ScheduleForm() {
   })
   // history (for redirecting)
   const history = useHistory();
+  // useEffect
+  useEffect(() => {    
+    if (props.id) {   
+      async function fetchData(id) {
+        const data = await fetch(`/api/tasks/${id}`)
+        const json = await data.json()
+        let oldState = {action: 'put', step: 1, task: 'rotate', xRot: 0, zRot: 0, focus: 0, time: '', loading: false}
+        oldState.id = json.task.id
+        oldState.task = json.task.task        
+        if (oldState.task === 'rotate') {
+          let split = json.task.task_data.split(',')
+          oldState.xRot = parseFloat(split[0].split()[1])
+          oldState.zRot = parseFloat(split[1].split()[1])
+          oldState.focus = parseInt(split[2].split()[1])
+        }
+        const date = new Date(json.task.task_date)        
+        oldState.time = dateString(date)
+        setState(oldState)               
+      }
+      fetchData(props.id)
+    }    
+  }, [])
 
   // functions
   function nextStep() {
@@ -119,7 +142,22 @@ function ScheduleForm() {
         }         
       }      
     }
-    post(tasks)
+    async function put(task) {
+      const data = await fetch(`/api/tasks/${props.id}`, {
+        method:'PUT',
+        body: JSON.stringify(task), 
+        headers: {"Content-type": "application/json; charset=UTF-8"}
+      })
+      const json = await data.json()
+      console.log(json.message)
+      // redirect home
+      history.push('/')   
+    }
+    if (state.action === 'post') {
+      post(tasks)
+    } else {
+      put(tasks[0])
+    }
   }
   function formatData (a, b) {
     let c = []
