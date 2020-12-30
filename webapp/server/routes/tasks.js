@@ -6,7 +6,7 @@ const pool = require('../db')
 router.get('/', (req, res, next) => {
   // query for all tasks or return an error
   pool
-    .query('SELECT * FROM tasks')
+    .query("SELECT * FROM tasks WHERE status='IN_PROGRESS';")
     .then(response => {
       res.status(200).json({
         message: 'Tasks returned from the database',
@@ -17,6 +17,42 @@ router.get('/', (req, res, next) => {
       console.log(e.stack)
       res.status(500).json({
         message: 'Failed to return tasks from the database',
+        error: e
+      })
+    })
+})
+
+// validate date
+router.post('/validate', (req, res, next) => {
+  // get the date from body and create another 2 dates for validation
+  const time = req.body.time
+  const inputTime = new Date(time)
+  // left time border
+  inputTime.setMinutes(inputTime.getMinutes() - 1)
+  const leftBorder = dateString(inputTime)
+  // right time border
+  inputTime.setMinutes(inputTime.getMinutes() + 2)
+  const rightBorder = dateString(inputTime)
+  // find tasks between or nothing, if fail return an error
+  pool
+    .query("SELECT * FROM tasks WHERE task_date BETWEEN $1 AND $2;", [leftBorder, rightBorder])
+    .then(response => {
+      if (response.rows.length === 0) {
+        res.status(200).json({
+          message: 'Time validated - no tasks found at this time',
+          valid: true
+        }) 
+      } else {
+        res.status(200).json({
+          message: 'Time validated - found tasks at this time',
+          valid: false
+        })
+      }      
+    })
+    .catch(e => {
+      console.log(e.stack)
+      res.status(500).json({
+        message: 'Failed to validate',
         error: e
       })
     })
@@ -114,5 +150,17 @@ router.delete('/:taskId', (req, res, next) => {
       })
     })
 })
+
+function dateString(d) {
+  let yyyy = d.getFullYear()
+  let month = parseInt(d.getMonth()) + 1
+  let mm = month < 10 ? "0" + month : month
+  let dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate()
+  let HH = d.getHours() < 10 ? "0" + d.getHours() : d.getHours()
+  let MM = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes()
+  let SS = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds()
+
+  return `${yyyy}-${mm}-${dd} ${HH}:${MM}:${SS}`
+}
 
 module.exports = router

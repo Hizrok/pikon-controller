@@ -2,6 +2,7 @@ import React from 'react'
 import {Form} from 'react-bootstrap'
 
 function Slider (props) {
+  // props: title, name, max, step, value, handleChange 
   return (
     <div className='mt-2' style={{width: '60%', margin: '0 auto'}}>
       <p style={{textAlign: 'center'}}>{props.title}</p>

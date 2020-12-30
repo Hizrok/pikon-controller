@@ -1,31 +1,24 @@
 import React from 'react'
-import Slider from '../../General/Slider' 
+import Slider from '../../General/Slider'
+import Button from 'react-bootstrap/Button'
 
 function RotateForm(props) {
+  // props variables
+  const {xRot, zRot, focus, handleChange, prevStep, nextStep} = props
+
   return(
     <div>
-      <Slider 
-        title='X rotation' 
-        name='xRotation' 
-        handleChange={props.handleChange} 
-        value={props.xRotation} 
-      />
-      <Slider 
-        title='Z rotation' 
-        name='zRotation' 
-        handleChange={props.handleChange} 
-        value={props.zRotation} 
-      />
-      <Slider 
-        title='Focus' 
-        name='focus' 
-        max='100'
-        step='1' 
-        handleChange={props.handleChange} 
-        value={props.focus} 
-      />
-    </div>
+      <div>
+        <Slider name='xRot' title='X rotation' max='360' step='0.01' value={xRot} handleChange={handleChange} />
+        <Slider name='zRot' title='Z rotation' max='180' step='0.01' value={zRot} handleChange={handleChange} />
+        <Slider name='focus' title='Focus' max='100' step='1' value={focus} handleChange={handleChange} />
+      </div>
+      <div className='mt-3'>
+        <Button onClick={prevStep} className='mr-2'>Back</Button>
+        <Button onClick={nextStep}>Continue</Button>
+      </div>
+    </div>    
   )
 }
 
-export default RotateForm  
+export default RotateForm

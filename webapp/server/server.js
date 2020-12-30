@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 const tasks = require('./routes/tasks')
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = 3001
 
 // express
 app.use(express.json())
