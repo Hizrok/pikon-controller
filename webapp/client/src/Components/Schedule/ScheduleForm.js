@@ -30,9 +30,9 @@ function ScheduleForm(props) {
         oldState.task = json.task.task        
         if (oldState.task === 'rotate') {
           let split = json.task.task_data.split(',')
-          oldState.xRot = parseFloat(split[0].split()[1])
-          oldState.zRot = parseFloat(split[1].split()[1])
-          oldState.focus = parseInt(split[2].split()[1])
+          oldState.xRot = parseFloat(split[1].split('_')[1])
+          oldState.zRot = parseFloat(split[2].split('_')[1])
+          oldState.focus = parseInt(split[3].split('_')[1])
         }
         const date = new Date(json.task.task_date)        
         oldState.time = dateString(date)
@@ -97,7 +97,7 @@ function ScheduleForm(props) {
         r.setMinutes(r.getMinutes() - 1)
         const rotateTimeString = dateString(r)
         names = ["task", "xRotation", "zRotation", "focus"]
-        values = [task, xRot, zRot, focus]
+        values = ["rotate", xRot, zRot, focus]
         tasks.push({
           task: "rotate", 
           taskData: formatData(names, values), 

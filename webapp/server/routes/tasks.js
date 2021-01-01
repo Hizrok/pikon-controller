@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const pool = require('../db')
+const mqttClient = require('../mqtt/mqttClient')
 
 // get in-progress tasks
 router.get('/', (req, res, next) => {
@@ -65,10 +66,13 @@ router.post('/', (req, res, next) => {
   const newTask = {task, taskData, taskDate, status: 'IN_PROGRESS'}
   pool
     .query(
-      'INSERT INTO tasks (task, task_data, task_date, status) VALUES ($1, $2, $3, $4);',
+      'INSERT INTO tasks (task, task_data, task_date, status) VALUES ($1, $2, $3, $4) RETURNING id;',
       [task, taskData, taskDate, 'IN_PROGRESS']
     )
     .then(response => {
+      // mqtt
+      const mqtt = `NEW,id_${response.rows[0].id},${taskData},time_${taskDate}`
+      mqttClient.sendMessage('tasks', mqtt)
       res.status(201).json({
         message: 'Task created',
         task: newTask
@@ -116,6 +120,9 @@ router.put('/:taskId', (req, res, next) => {
       [task, taskData, taskDate, id]
     )
     .then(response => {
+      // mqtt
+      const mqtt = `EDIT,id_${id},${updatedTask.taskData},time_${updatedTask.taskDate}`
+      mqttClient.sendMessage('tasks', mqtt)
       res.status(200).json({
         message: 'Task updated in the database',
         updatedTask
@@ -137,6 +144,9 @@ router.delete('/:taskId', (req, res, next) => {
   pool
     .query('DELETE FROM tasks WHERE id=$1;', [id])
     .then(response => {
+      // mqtt
+      const mqtt = `DELETE,id_${id}`
+      mqttClient.sendMessage('tasks', mqtt)
       res.status(200).json({
         message: 'Task deleted from the database',
         id

@@ -2,11 +2,15 @@ const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 
+const mqttClient = require('./mqtt/mqttClient')
+
 const tasks = require('./routes/tasks')
 
 const app = express()
 const PORT = 3001
 
+// mqtt
+mqttClient.connect();
 // express
 app.use(express.json())
 // logger
