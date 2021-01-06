@@ -6,3 +6,9 @@ CREATE TABLE tasks (
     status VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
 );
+CREATE TABLE photos (
+    id BIGSERIAL NOT NULL,
+    photo_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    photo_path VARCHAR(150) NOT NULL,
+    PRIMARY KEY (id)
+);

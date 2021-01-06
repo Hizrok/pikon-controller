@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const mqttClient = require('./mqtt/mqttClient')
 
 const tasks = require('./routes/tasks')
+const photos = require('./routes/photos')
 
 const app = express()
 const PORT = 3001
@@ -15,6 +16,8 @@ mqttClient.connect();
 app.use(express.json())
 // logger
 app.use(morgan('dev'))
+// static image folder
+app.use('/images', express.static('images'))
 // body parser
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
@@ -38,6 +41,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use('/api/tasks', tasks)
+app.use('/api/photos', photos)
 
 // error handeling
 app.use((req, res, next) => {

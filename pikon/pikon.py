@@ -73,14 +73,15 @@ def take_photo(task):
     task_time = time.strftime('%Y-%m-%d %H:%M:%S', task.task_date)
     print('[PIKON]: taking a photo at '+task_time)
     # take the photo
-    # publish to messages
-    message = 'COMPLETED,id_'+str(task.id)
-    client.publish('messages', message, 0)
     # publish to photos
     f = open('moon.jpg', 'rb')
     file_content = f.read()
     byte_array = bytearray(file_content)
-    client.publish('photos', byte_array, 0)
+    topic = 'photos/' + task_time 
+    client.publish(topic, byte_array, 0)
+    # publish to messages
+    message = 'COMPLETED,id_'+str(task.id)
+    client.publish('messages', message, 0)
 
 def create_new_task(data):
     # array of data after first split
@@ -174,3 +175,4 @@ client.on_message = on_message
 client.connect('localhost', port=1883, keepalive=60)
 
 client.loop_forever()
+    

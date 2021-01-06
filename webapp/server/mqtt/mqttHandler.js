@@ -13,11 +13,12 @@ class MqttHandler {
     this.mqttClient.on('connect', () => {
       console.log('[SERVER]: mqtt client connected')
       this.mqttClient.subscribe('messages')
-      this.mqttClient.subscribe('photos')
+      this.mqttClient.subscribe('photos/+')
     })
 
     this.mqttClient.on('message', (topic, message) => {
-      switch (topic) {
+      const topicSplit = topic.split('/')
+      switch (topicSplit[0]) {
         case 'messages':
           console.log(`[SERVER]: ${topic}: ${message}`)  
           // delete or edit task in the database
@@ -29,16 +30,31 @@ class MqttHandler {
             })
             .catch(e => {
               console.log(e.stack)
-              console.log('failed to delete')
+              console.log('failed to delete task')
             })
           // inform user
           break;
         case 'photos':
-          // give image a name and save it on the server
-          fs.writeFile('./images/photo.jpg', message, function (err) {
+          // give the photo a name and save it on the server
+          const date = new Date(topicSplit[1])
+          const photoPath = `./images/${Date.parse(date)}.jpg`
+          fs.appendFile(photoPath, message, function (err) {
             if (err) throw err;
+            console.log(`[SERVER]: image ${Date.parse(date)}.jpg saved`)
           })
-          // store path in the database
+          // save to db
+          pool
+            .query(
+              'INSERT INTO photos (photo_date, photo_path) VALUES ($1, $2);',
+              [topicSplit[1], photoPath.slice(1, photoPath.length)]
+            )
+            .then(response => {
+              console.log('new photo created')
+            })
+            .catch(e => {
+              console.log(e.stack)
+              console.log('failed to create new photo')
+          })
           // inform user
           break;
         default:
