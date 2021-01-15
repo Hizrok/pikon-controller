@@ -1,6 +1,9 @@
-const mqtt = require('mqtt');
-const fs = require('fs');
+const mqtt = require('mqtt')
+const fs = require('fs')
 const pool = require('../db')
+
+const WebSocket = require('ws')
+const ws = new WebSocket('http://localhost:3001')
 
 class MqttHandler {
   constructor() {
@@ -33,6 +36,7 @@ class MqttHandler {
               console.log('failed to delete task')
             })
           // inform user
+          ws.send(message.toString());
           break;
         case 'photos':
           // give the photo a name and save it on the server

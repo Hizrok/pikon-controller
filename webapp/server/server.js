@@ -1,4 +1,6 @@
 const express = require('express')
+const http = require('http')
+const WebSocket = require('ws');
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 
@@ -8,6 +10,8 @@ const tasks = require('./routes/tasks')
 const photos = require('./routes/photos')
 
 const app = express()
+const server = http.createServer(app)
+const wss = new WebSocket.Server({ server })
 const PORT = 3001
 
 // mqtt
@@ -21,6 +25,16 @@ app.use('/images', express.static('images'))
 // body parser
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
+// ws
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(data) {
+    wss.clients.forEach(function each(client) {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  });
+});
 
 // CORS error handeling (cross-origin-resource-sharing)
 app.use((req, res, next) => {
@@ -58,4 +72,4 @@ app.use((err, req, res, next) => {
   })
 })
 
-app.listen(PORT)
+server.listen(PORT)
