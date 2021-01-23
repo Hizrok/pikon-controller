@@ -16,12 +16,14 @@ function Scheduler() {
       });
       setTasks(json.tasks)
     }
-    // ws
     fetchData()
-    let ws = new WebSocket('ws://localhost:3001')
+    // ws
+    const ws = new WebSocket('ws://localhost:3001')
     ws.onmessage = (event) => {
-      const id = event.data.split(',')[1].split('_')[1]
-      filterOut(id)
+      if (event.data.split(',')[0] !== 'MANUAL') {
+        const id = event.data.split(',')[1].split('_')[1]
+        filterOut(id)
+      }      
     }
     return () => {
       ws.close()
@@ -79,7 +81,6 @@ function Scheduler() {
         </thead>
         <tbody>
           {tasks && tasks.map(task => {
-            console.log(task.id)
             return ( 
               <tr key={task.id}>
                 <td>{task.task_date}</td>

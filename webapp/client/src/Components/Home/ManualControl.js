@@ -3,6 +3,9 @@ import { Button } from 'react-bootstrap'
 import Slider from '../General/Slider'
 
 function ManualControl() {
+
+  const ws = new WebSocket('ws://localhost:3001')
+
   const [state, setState] = useState({
     xRotation: 0,
     zRotation: 0,
@@ -25,13 +28,37 @@ function ManualControl() {
     )
     }
   }
-
   function handleClick(event) {
     const {name} = event.target
-    setState(prevState => {
-        return {...prevState, [name]: false}
-      }
-    )
+    sendTask(name)
+    if (name === 'canRotate' || name === 'canFocus') {
+      setState(prevState => {
+          return {...prevState, [name]: false}
+        }
+      )
+    }
+    
+  }
+  function sendTask(taskName) {
+    let task = ''
+    switch (taskName) {
+      case 'canRotate':
+        task = `MANUAL,rotate,${state.xRotation},${state.zRotation}`
+        break;
+      case 'canFocus':
+          task = `MANUAL,focus,${state.focus}`
+          break;
+      case 'photo':
+        task = 'MANUAL,photo'
+        break;
+      default:
+        task = 'this error is because default trigger in switch at manual control send task'
+        break;
+    }
+    ws.send(task)
+    return () => {
+      ws.close()
+    }
   }
 
   return (
@@ -62,7 +89,7 @@ function ManualControl() {
       <div className='d-flex justify-content-center mt-3'>
         <Button name='canRotate' className='mr-1 ml-1' disabled={!state.canRotate} onClick={handleClick}>Rotate</Button>
         <Button name='canFocus' className='mr-1 ml-1' disabled={!state.canFocus} onClick={handleClick}>Focus</Button>
-        <Button className='mr-1 ml-1'>Take photo</Button>
+        <Button name='photo' className='mr-1 ml-1' onClick={handleClick}>Take photo</Button>
         <Button className='mr-1 ml-1'>Start streaming</Button>
       </div>
     </div>    

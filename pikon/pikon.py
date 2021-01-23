@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import yaml
 import time
 import threading
+import pikon_control
 
 tasks = []
 data = {}
@@ -64,7 +65,9 @@ def rotate(task):
     focus = data[3].split('_')[1]
     task_time = time.strftime('%Y-%m-%d %H:%M:%S', task.task_date)
     print('[PIKON]: rotating to '+x_rot+', '+z_rot+', '+focus+' at '+task_time)
-    # rotate
+    # rotate and focus
+    pikon_control.rotate(x_rot, z_rot)
+    pikon_control.focus(focus)
     # publish to messages
     message = 'COMPLETED,id_'+str(task.id)
     client.publish('messages', message, 0)   
@@ -73,6 +76,7 @@ def take_photo(task):
     task_time = time.strftime('%Y-%m-%d %H:%M:%S', task.task_date)
     print('[PIKON]: taking a photo at '+task_time)
     # take the photo
+    pikon_control.take_photo()
     # publish to photos
     f = open('moon.jpg', 'rb')
     file_content = f.read()
@@ -167,6 +171,22 @@ def on_message(client, userdata, msg):
         elif firstSplit[0] == 'DELETE':
             print('[PIKON]: deleting existing task')
             delete_task(firstSplit)
+        elif firstSplit[0] == 'MANUAL':
+            print('[PIKON]: new manual task')
+            if firstSplit[1] == 'rotate':
+                pikon_control.rotate(firstSplit[2], firstSplit[3])
+                # let user know?
+            elif firstSplit[1] == 'focus':
+                pikon_control.focus(firstSplit[2])
+                # let user know?
+            elif firstSplit[1] == 'photo':
+                task_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+                pikon_control.take_photo()
+                f = open('moon.jpg', 'rb')
+                file_content = f.read()
+                byte_array = bytearray(file_content)
+                topic = 'photos/' + task_time 
+                client.publish(topic, byte_array, 0)
 
 client = mqtt.Client()
 client.on_connect = on_connect

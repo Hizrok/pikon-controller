@@ -11,6 +11,13 @@ class MqttHandler {
   }
 
   connect() {
+    // ws
+    ws.on('message', (data) => {
+      this.sendMessage('tasks', data)
+    })
+
+    // if you are working with rpi - change this
+    //this.mqttClient = mqtt.connect([{host: '<IP>', port: 1883, keepalive: 60}])
     this.mqttClient = mqtt.connect([{host: 'localhost', port: 1883, keepalive: 60}])
 
     this.mqttClient.on('connect', () => {
