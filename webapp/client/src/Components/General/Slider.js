@@ -4,35 +4,31 @@ import {Form} from 'react-bootstrap'
 function Slider (props) {
   // props: title, name, max, step, value, handleChange 
   return (
-    <div className='mt-2' style={{width: '60%', margin: '0 auto'}}>
-      <p style={{textAlign: 'center'}}>{props.title}</p>
-      <div className='d-flex'>
-        <div className='slider-container'>
-          <input 
-            name={props.name} 
-            type='range' 
-            className='slider' 
-            min='0' 
-            max={props.max || '360'} 
-            step={props.step || '0.01'} 
-            value={props.value} 
-            onChange={props.handleChange} 
-          />
-        </div>
-        <div style={{width:'20%'}}>
-          <Form.Control 
-            name={props.name}
-            className='form-control col-xs-2 ml-3' 
-            type='number' 
-            min='0' 
-            max={props.max || '360'} 
-            step={props.step || '0.01'} 
-            value={props.value} 
-            onChange={props.handleChange} 
-          />
-        </div>        
+    <div className='slider-container'>
+      <p className="mt-2 mb-0">{props.title}</p>
+      <div className="d-flex align-items-center">
+        <input 
+          name={props.name} 
+          type='range' 
+          className='slider' 
+          min='0' 
+          max={props.max || '360'} 
+          step={props.step || '0.01'} 
+          value={props.value} 
+          onChange={props.handleChange} 
+        />
+        <Form.Control 
+          name={props.name}
+          className='number-form form-control' 
+          type='number' 
+          min='0' 
+          max={props.max || '360'} 
+          step={props.step || '0.01'} 
+          value={props.value} 
+          onChange={props.handleChange} 
+        />
       </div>
-    </div>    
+    </div>       
   )
 }
 

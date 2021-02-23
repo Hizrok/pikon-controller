@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react'
-import Container from 'react-bootstrap/Container';
-import Photo from './Photos/Photo'
+import React, {useState, useEffect} from "react"
+import {Container, Dropdown, DropdownButton} from "react-bootstrap";
+import Photo from "./Photos/Photo"
 
 function Photos() {
   const [photos, setPhotos] = useState([])
@@ -32,15 +32,24 @@ function Photos() {
   }
 
   return (
-    <Container className='mt-3'>
-      <h4 className='mb-3'>Photos</h4>
-      <div className='row'>
-        {
-          photos.map(photo => {
-            return <Photo key={photo.id} date={photo.photo_date} path={photo.photo_path} />
-          })
-        }   
-      </div>
+    <Container className="mt-3 mb-5">
+      <DropdownButton title="Sort by">
+        <Dropdown.Item>Newest</Dropdown.Item>
+        <Dropdown.Item>Oldest</Dropdown.Item>
+        <Dropdown.Item>Best</Dropdown.Item>
+      </DropdownButton>
+      <div className="card mt-3">
+        <div className="card-body">
+          <h4>Photos</h4>
+          <div className="row mt-3">
+            {
+              photos.map(photo => {
+                return <Photo key={photo.id} date={photo.photo_date} path={photo.photo_path} />
+              })
+            }   
+          </div>
+        </div>
+      </div>      
     </Container>
   )
 }

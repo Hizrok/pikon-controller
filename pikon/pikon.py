@@ -78,7 +78,7 @@ def take_photo(task):
     # take the photo
     pikon_control.take_photo()
     # publish to photos
-    f = open('moon.jpg', 'rb')
+    f = open('image.jpg', 'rb')
     file_content = f.read()
     byte_array = bytearray(file_content)
     topic = 'photos/' + task_time 
@@ -182,7 +182,7 @@ def on_message(client, userdata, msg):
             elif firstSplit[1] == 'photo':
                 task_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
                 pikon_control.take_photo()
-                f = open('moon.jpg', 'rb')
+                f = open('image.jpg', 'rb')
                 file_content = f.read()
                 byte_array = bytearray(file_content)
                 topic = 'photos/' + task_time 

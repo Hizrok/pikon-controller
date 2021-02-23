@@ -1,20 +1,21 @@
-import React, {useState, useEffect} from 'react'
-import {useHistory} from 'react-router-dom'
-import RotateForm from './ScheduleForm/RotateForm'
-import TaskForm from './ScheduleForm/TaskForm'
-import TimeForm from './ScheduleForm/TimeForm'
-import ConfirmForm from './ScheduleForm/ConfirmForm'
+import React, {useState, useEffect} from "react"
+import {useHistory} from "react-router-dom"
+import RotateForm from "./ScheduleForm/RotateForm"
+import TaskForm from "./ScheduleForm/TaskForm"
+import DateForm from "./ScheduleForm/DateForm"
+import TimeForm from "./ScheduleForm/TimeForm"
+import ConfirmForm from "./ScheduleForm/ConfirmForm"
 
 function ScheduleForm(props) {
   // state
   const [state, setState] = useState({
-    action: 'post',
+    action: "post",
     step: 1,
-    task: 'rotate',
+    task: "rotate",
     xRot: 0,
     zRot: 0,
     focus: 0,
-    time: '',
+    time: "",
     loading: false
   })
   // history (for redirecting)
@@ -25,14 +26,14 @@ function ScheduleForm(props) {
       async function fetchData(id) {
         const data = await fetch(`/api/tasks/${id}`)
         const json = await data.json()
-        let oldState = {action: 'put', step: 1, task: 'rotate', xRot: 0, zRot: 0, focus: 0, time: '', loading: false}
+        let oldState = {action: "put", step: 1, task: "rotate", xRot: 0, zRot: 0, focus: 0, time: "", loading: false}
         oldState.id = json.task.id
         oldState.task = json.task.task        
-        if (oldState.task === 'rotate') {
-          let split = json.task.task_data.split(',')
-          oldState.xRot = parseFloat(split[1].split('_')[1])
-          oldState.zRot = parseFloat(split[2].split('_')[1])
-          oldState.focus = parseInt(split[3].split('_')[1])
+        if (oldState.task === "rotate") {
+          let split = json.task.task_data.split(",")
+          oldState.xRot = parseFloat(split[1].split("_")[1])
+          oldState.zRot = parseFloat(split[2].split("_")[1])
+          oldState.focus = parseInt(split[3].split("_")[1])
         }
         const date = new Date(json.task.task_date)        
         oldState.time = dateString(date)
@@ -56,6 +57,24 @@ function ScheduleForm(props) {
   function onSelect(e) {
     setState(prevState => {
       return {...prevState, task: e.target.name}
+    })
+  }
+  function dateClicked(data) {
+    const split = data.split("-")
+    const day = split[0] 
+    const month = split[1] 
+    const year = split[2]
+    const date = new Date()
+    date.setDate(day)
+    date.setMonth(month)
+    date.setFullYear(year)
+    setState(prevState => {
+      return {...prevState, time: dateString(date)}
+    })
+  }
+  function timeSet(data) {
+    setState(prevState => {
+      return {...prevState, time: data}
     })
   }
   function handleChange(event) {
@@ -129,8 +148,8 @@ function ScheduleForm(props) {
   function sendTasks(tasks) {
     async function post(tasks) {
       for (let i = 0; i < tasks.length; i++) {
-        const data = await fetch('/api/tasks', {
-          method:'POST',
+        const data = await fetch("/api/tasks", {
+          method:"POST",
           body: JSON.stringify(tasks[i]), 
           headers: {"Content-type": "application/json; charset=UTF-8"}
         })
@@ -138,22 +157,22 @@ function ScheduleForm(props) {
         console.log(json.message)
         if (i === tasks.length - 1) {
           // redirect home
-          history.push('/')
+          history.push("/")
         }         
       }      
     }
     async function put(task) {
       const data = await fetch(`/api/tasks/${props.id}`, {
-        method:'PUT',
+        method:"PUT",
         body: JSON.stringify(task), 
         headers: {"Content-type": "application/json; charset=UTF-8"}
       })
       const json = await data.json()
       console.log(json.message)
       // redirect home
-      history.push('/')   
+      history.push("/")   
     }
-    if (state.action === 'post') {
+    if (state.action === "post") {
       post(tasks)
     } else {
       put(tasks[0])
@@ -183,36 +202,39 @@ function ScheduleForm(props) {
 
   // switch
   switch (state.task) {
-    case 'rotate':
+    case "rotate":
       formParts = [
         <TaskForm task={state.task} onSelect={onSelect} nextStep={nextStep} />,
         <RotateForm xRot={state.xRot} zRot={state.zRot} focus={state.focus} handleChange={handleChange} nextStep={nextStep} prevStep={prevStep} />,
-        <TimeForm value={state.time} handleChange={handleChange} title='Time' nextStep={nextStep} prevStep={prevStep} />,
+        <DateForm dateClicked={dateClicked} nextStep={nextStep} prevStep={prevStep} />,
+        <TimeForm value={state.time} timeSet={timeSet} nextStep={nextStep} prevStep={prevStep} />,
         <ConfirmForm 
-          names={['X rotation', 'Z rotation', 'Focus', 'Time']}
+          names={["X rotation", "Z rotation", "Focus", "Time"]}
           values={[state.xRot, state.zRot, state.focus, state.time]}
           prevStep={prevStep} confirm={confirm} loading={state.loading}
         />
       ]
       break;
-    case 'photo':
+    case "photo":
       formParts = [
         <TaskForm task={state.task} onSelect={onSelect} nextStep={nextStep} />,
-        <TimeForm value={state.time} handleChange={handleChange} title='Photo time' nextStep={nextStep} prevStep={prevStep} />,
+        <DateForm dateClicked={dateClicked} nextStep={nextStep} prevStep={prevStep} />,
+        <TimeForm value={state.time} timeSet={timeSet} nextStep={nextStep} prevStep={prevStep} />,
         <ConfirmForm 
-          names={['Time']}
+          names={["Time"]}
           values={[state.time]}
           prevStep={prevStep} confirm={confirm} loading={state.loading}
         />
       ]
       break;
-    case 'rotateAndPhoto':
+    case "rotateAndPhoto":
       formParts = [
         <TaskForm task={state.task} onSelect={onSelect} nextStep={nextStep} />,
         <RotateForm xRot={state.xRot} zRot={state.zRot} focus={state.focus} handleChange={handleChange} nextStep={nextStep} prevStep={prevStep} />,
-        <TimeForm value={state.time} handleChange={handleChange} title='Photo time' nextStep={nextStep} prevStep={prevStep} />,
+        <DateForm dateClicked={dateClicked} nextStep={nextStep} prevStep={prevStep} />,
+        <TimeForm value={state.time} timeSet={timeSet} nextStep={nextStep} prevStep={prevStep} />,
         <ConfirmForm 
-          names={['X rotation', 'Z rotation', 'Focus', 'Time']}
+          names={["X rotation", "Z rotation", "Focus", "Time"]}
           values={[state.xRot, state.zRot, state.focus, state.time]}
           prevStep={prevStep} confirm={confirm} loading={state.loading}
         />
